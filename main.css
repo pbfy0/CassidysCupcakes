@@ -1,0 +1,137 @@
+@font-face {
+	font-family: "Eras Demi ITC";
+	src: url("font.woff");
+}
+
+html, body {
+	height: 100%;
+}
+body {
+	background-image: url("images/background.jpg");
+	background-size: 100% 100%;
+	background-repeat: repeat-x;
+	margin: 0;
+	overflow: hidden;
+	font-family: "Eras Demi ITC";
+	
+	display: flex;
+	flex-direction: column;
+}
+
+#container {
+	width: 80%;
+	margin: 0 auto;
+	flex: 1;
+	
+	display: flex;
+	flex-direction: column;
+}
+
+#padding {
+	height: 1em;
+}
+
+#title {
+	padding-left: 2.4em;
+	background-image: url("images/head.png");
+	background-repeat: no-repeat;
+	color: white;
+	font-size: 400%;
+	text-shadow: 0px 0px 0.4em #222222;
+	white-space: nowrap;
+	min-height: 101px;
+}
+#controls {
+	display: inline-block;
+	float: right;
+	background-color: black;
+	width: 300px;
+	position: relative;
+}
+
+#panels {
+	flex: 1;
+}
+
+#store {
+	float: left;
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	margin-top: 1em;
+}
+#righthalf {
+	float: right;
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+#tabs {
+	font-size: 150%;
+	color: white;
+	padding-top: .3em;
+	padding-left: 1em;
+	z-index: 1;
+}
+#tabs span {
+	border-left: .3em ridge;
+	border-top: .3em ridge;
+	border-right: .3em groove;
+	border-top-right-radius: .4em;
+	border-top-left-radius: .4em;
+	border-color: #89d0f5;
+	
+	background-color: #343839;
+	padding-bottom: .1em;
+}
+#tabs span.active {
+	padding-bottom: .3em;
+}
+#cupcake_number {
+	background-color: rgba(52, 56, 57, 0.7);
+	width: 90%;
+	margin: 0 auto;
+	flex: 1 0 0;
+	text-align: center;
+	color: white;
+	font-size: 250%;
+}
+#items {
+	flex: 1;
+	background-color: #343839;
+	border-radius: 1em;
+	border-left: .3em ridge;
+	border-top: .3em ridge;
+	border-right: .3em groove;
+	border-bottom: .3em groove;
+	border-color: #89d0f5;
+	padding: 0.35em;
+}
+
+#cupcake {
+	display: block;
+	margin: 0 auto;
+	margin-top: 2em;
+	flex: 3 0 0;
+}
+
+#cimage:hover > #ctop {
+	fill: #ff0;
+}
+
+#cimage {
+	cursor: pointer;
+}
+
+#caption {
+	background-image: url("images/body.png");
+	flex: 3 0 0;
+	background-repeat: no-repeat;
+	background-size: auto 100%;
+}
+
+#savepicker {
+	display: none;
+}
