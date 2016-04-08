@@ -90,11 +90,14 @@ for(var xi in items){
 	var x = items[xi];
 	for(var i = 0; i < 5; i++){
 		x.upgrades[i].req = reqs[i];
+		x.img = i + ".svg"
 	}
 }
 
 var order = ["helpers", "scarlet", "orion", "grimm", "kitchen", "ivaldi", "farms", "celestial"]
-
+for(var i = 0; i < order.length; i++){
+	items[order[i]].idx = i;
+}
 window.items = items;
 window.order = order;
 })();

@@ -1,6 +1,6 @@
 @font-face {
 	font-family: "Eras Demi ITC";
-	src: url("font.woff");
+	src: url("Eras_Demi_ITC.ttf");
 }
 
 html, body {
@@ -36,7 +36,7 @@ body {
 	background-image: url("images/head.png");
 	background-repeat: no-repeat;
 	color: white;
-	font-size: 400%;
+	font-size: 4em;
 	text-shadow: 0px 0px 0.4em #222222;
 	white-space: nowrap;
 	min-height: 101px;
@@ -69,7 +69,7 @@ body {
 	min-height: 100%;
 }
 #tabs {
-	font-size: 150%;
+	font-size: 1.5em;
 	color: white;
 	padding-top: .3em;
 	padding-left: 1em;
@@ -96,7 +96,7 @@ body {
 	flex: 1 0 0;
 	text-align: center;
 	color: white;
-	font-size: 250%;
+	font-size: 2.5em;
 }
 #items {
 	flex: 1;
@@ -134,4 +134,35 @@ body {
 
 #savepicker {
 	display: none;
+}
+
+#templates {
+	display: none;
+}
+
+.storeitem > div > .storename {
+	float: left;
+}
+
+.storeitem > div >  .storenumber {
+	float: right;
+}
+.storeitem > div > #clear {
+	clear: both;
+}
+.storeitem > div >  button {
+	float: left;
+}
+.storeitem > div >  progress {
+	float: right;
+}
+
+.storeitem {
+	display: flex;
+	flex-direction: row;
+	background-color: yellow;
+	font-size: 1.5em;
+}
+.storeitem > div {
+	flex: 1;
 }
