@@ -11,27 +11,3 @@ function convert_save(fs){
 	}
 	return r;
 }
-
-
-
-document.addEventListener('DOMContentLoaded', function(){
-	var picker = $('savepicker')
-	picker.addEventListener('change', function(){
-		if(picker.files[0]){
-			var blob = picker.files[0];
-			var fileReader = new FileReader();
-			fileReader.addEventListener('load', function() {
-				picker.value = '';
-				var buf = this.result;
-				var u8a = new Uint8Array(buf);
-				window.x = convert_save(decodeLSO(u8a));
-			});
-			fileReader.readAsArrayBuffer(blob);
-		}
-	});
-	function load_cc_save(){
-		picker.click();
-	}
-	window.lccs = load_cc_save;
-});
-
