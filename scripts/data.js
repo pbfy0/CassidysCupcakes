@@ -1,7 +1,7 @@
 (function(){
-var o = function(price){ return {price: price, o_factor: 2, i_factor: 1} };
-var O = function(price){ return {price: price, o_factor: 6, i_factor: 1} };
-var t = function(price){ return {price: price, o_factor: 1, i_factor: 0.5} };
+var o = function(price){ return {price: price, o_factor: 2, i_factor: 1, caption: function(name){return 'Increase ' + name + ' Output by 100%'}} };
+var O = function(price){ return {price: price, o_factor: 6, i_factor: 1, caption: function(name){return 'Increase ' + name + ' Output by 500%'}} };
+var t = function(price){ return {price: price, o_factor: 1, i_factor: 0.5, caption: function(name){return name + ' Production time reduced 50%'}} };
 
 var items = {
 	helpers: {
@@ -90,13 +90,13 @@ for(var xi in items){
 	var x = items[xi];
 	for(var i = 0; i < 5; i++){
 		x.upgrades[i].req = reqs[i];
-		x.img = i + ".svg"
 	}
 }
 
 var order = ["helpers", "scarlet", "orion", "grimm", "kitchen", "ivaldi", "farms", "celestial"]
 for(var i = 0; i < order.length; i++){
 	items[order[i]].idx = i;
+	items[order[i]].img = i + '.svg'
 }
 window.items = items;
 window.order = order;

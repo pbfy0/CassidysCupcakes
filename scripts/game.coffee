@@ -1,4 +1,6 @@
 $ = document.getElementById.bind(document)
+Function::property = (prop, desc) ->
+	Object.defineProperty @prototype, prop, desc
 
 convert_save = (fs) ->
 	r = {c: fs.Cupcakes, i: {}}
@@ -26,22 +28,155 @@ format_number = (n) ->
 		n /= 1000
 	f = Math.round(n)
 	if d then f = add_commas(f.toString())
-	return f + if g then (" " + a[g-1]) else ''
+	return f + if g then a[g-1] else ''
 class UpgradeState
 	constructor: (@item, @n) ->
 		@all = @item.type.upgrades
 		@active = @all[0...@n]
+		@dom = new UpgradeDom(@)
 	calc_o_factor: () ->
 		product(x.o_factor for x in @active)
 	calc_i_factor: () ->
 		product(x.i_factor for x in @active)
 	n_active: ->
 		@active.length
+	set: (@n) ->
+		@active = @all[0...@n]
 	buy: ->
 		next = @all[@n]
 		if @item.game.cupcakes < next.price then return false
+		@item.game.cupcakes -= next.price
 		@active.push(next)
 		@n++
+		@dom.update()
+	update: ->
+		@dom.update()
+class UpgradeDom
+	constructor: (@us) ->
+		@el = $('upgradetemplate').children[0].cloneNode(true)
+		@els = 
+			name: @el.getElementsByClassName('upgradename')[0]
+			upgrades: []
+		for i in [1..5]
+			@els.upgrades[i-1] = @el.getElementsByClassName('upgrade' + i)[0]
+		
+		@visible = false
+		$('upgrades').appendChild(@el)
+		@init()
+	init: () ->
+		@name = @us.item.type.name
+		udom = @
+		@el.addEventListener 'mouseover', =>
+			@us.item.game.tooltip(@us.item.type.caption)
+		for v, i in @els.upgrades
+			v.addEventListener 'click', () ->
+				if (! @classList.contains('disabled')) and (! @classList.contains('checked'))
+					udom.us.buy()
+			u = @us.all[i]
+			do (u) =>
+				v.addEventListener 'mouseover', () =>
+					@us.item.game.tooltip(u.caption(@us.item.type.name)+"<br/>Cost: <span>#{format_number(u.price)}</span><br/>Requires <span>#{u.req}</span> #{@us.item.type.name}")
+					spans = $('caption').getElementsByTagName('span')
+					if ! (u in @us.active)
+						spans[0].style.color = if u.price <= @us.item.game.cupcakes then 'green' else 'red'
+						spans[1].style.color = if u.req <= @us.item.n_items then 'green' else 'red'
+						return
+		@update()
+	update: () ->
+		if @us.item.n_items == 0
+			@el.style.display = "none"
+			return
+		else
+			@el.style.display = ""
+		for v, i in @els.upgrades
+			act = @us.active[i]
+			all = @us.all[i]
+			if act
+				v.style.display = ""
+				v.classList.add('checked')
+				v.classList.remove('disabled')
+			else if @us.active[i-1] or i == 0
+				v.style.display = ""
+				if all.price <= @us.item.game.cupcakes and all.req <= @us.item.n_items
+					v.classList.remove('checked')
+					v.classList.remove('disabled')
+				else
+					v.classList.remove('checked')
+					v.classList.add('disabled')
+			else
+				v.style.display = "none"
+		return
+	@property 'visible',
+		get: () -> @_visible
+		set: (val) ->
+			@_visible = val
+			@el.style.display = if val then "" else "none"
+			return
+	@property 'name',
+		get: () -> @els.name.textContent
+		set: (val) -> @els.name.textContent = val
+
+class ItemDom
+	constructor: (@item) ->
+		@el = $('storetemplate').children[0].cloneNode(true)
+		@els =
+			img: @el.getElementsByTagName('img')[0]
+			name: @el.getElementsByClassName('storename')[0]
+			number: @el.getElementsByClassName('storenumber')[0]
+			button: @el.getElementsByTagName('button')[0]
+			progress: @el.getElementsByTagName('progress')[0]
+		@_number = 0
+		@visible = false
+		$('inventory').appendChild(@el)
+		@int = Infinity
+		@init()
+	init: () ->
+		@img = "images/items/#{@item.type.img}"
+		@name = @item.type.name
+		@els.button.addEventListener 'click', =>
+			@item.buy()
+		@el.addEventListener 'mouseover', =>
+			@item.game.tooltip(@item.type.caption)
+		@update()
+	update: () ->
+		@button_text = "Buy (#{format_number(@item.calc_price())})"
+		@number = @item.n_items
+		@int = @item.calc_interval()
+		if @int != Infinity and @number
+			@els.progress.max = @int
+			@els.progress.style.display = ""
+		else
+			@els.progress.style.display = "none"
+		o = format_number(@item.calc_output())
+		@els.progress.setAttribute('data-text', if o.length < 10 then o + " cupcakes" else o)
+	animate: (elapsed) ->
+		if @int != Infinity then @progress = (@progress + elapsed) % @int
+	a_reset: () ->
+		#if @int != Infinity then @progress -= @int
+		@progress = 0
+	@property 'visible',
+		get: () -> @_visible
+		set: (val) ->
+			@_visible = val
+			@el.style.display = if val then "" else "none"
+			return
+	@property 'name',
+		get: () -> @els.name.textContent
+		set: (val) -> @els.name.textContent = val
+	@property 'img',
+		get: () -> @els.img.src
+		set: (val) -> @els.img.src = val
+	@property 'progress',
+		get: () -> @els.progress.value
+		set: (val) -> @els.progress.value = val
+	@property 'number',
+		get: () -> @_number
+		set: (val) ->
+			@_number = val
+			@els.number.textContent = val
+	@property 'button_text',
+		get: () -> @els.button.textContent
+		set: (val) -> @els.button.textContent = val
 class ItemState
 	constructor: (@game, type) ->
 		@type = items[type]
@@ -49,11 +184,13 @@ class ItemState
 		@n_items = 0
 		@upgrades = new UpgradeState(@, 0)
 		@ms_left = Infinity
-		@create_dom()
+		@dom = new ItemDom(@)
 	load: (save) ->
-		@upgrades = new UpgradeState(@, save.u)
+		@upgrades.set(save.u)
 		@n_items = save.n
 		@ms_left = @calc_interval()
+		@dom.update()
+		@dom.a_reset()
 	save: () ->
 		if @n_items then {n: @n_items, u: @upgrades.n_active()}
 	calc_price: () ->
@@ -82,46 +219,40 @@ class ItemState
 	buy: (n=1) ->
 		if @game.cupcakes < @calc_price() * n then return false
 		@game.cupcakes -= @calc_price() * n
+		if @n_items == 0
+			@first_update = true
+			@upgrades.dom.update()
+		@game.items[order[@type.idx+1]].dom.visible = true
 		@n_items += n
 		@game.interrupt_tick()
+		@dom.update()
+		@upgrades.update()
 		return true
 	update: (elapsed) ->
-		@ms_left -= elapsed;
+		if @n_items == 0 then return 0
+		if @first_update
+			@ms_left = 0
+			@first_update = false
+		else
+			@ms_left -= elapsed;
+		#if @type.idx == 1 then console.log(elapsed, @ms_left)
 		if @ms_left <= 0
 			#console.log("#{@type.name} output")
+			@dom.a_reset()
 			@ms_left += @calc_interval()
 			return @calc_output()
 		return 0
-	create_dom: () ->
-		dom = $('storetemplate').children[0].cloneNode(true)
-		dom.getElementsByTagName('img')[0].src = "images/items/#{@type.img}"
-		dom.getElementsByClassName('storename')[0].textContent = @type.name
-		dom.getElementsByTagName('button')[0].addEventListener 'click', =>
-			@buy()
-			@update_dom()
-		@dom = dom
-		@update_dom()
-	update_dom: () ->
-		@dom.getElementsByClassName('storenumber')[0].textContent = @n_items
-		@dom.getElementsByTagName('button')[0].textContent = "Buy (#{@calc_price()})"
-		e = @dom.getElementsByTagName('progress')[0]
-		if @calc_interval() != Infinity
-			e.max = @calc_interval()
-		else
-			e.style.display = "none"
-	hide: () ->
-		@dom.parentElement.removeChild(@dom)
-	show: () ->
-		$('inventory').appendChild(@dom)
+
+	animate: (elapsed) ->
+		if @n_items > 0 then @dom.animate(elapsed)
 
 class Game
 	constructor: () ->
 		@items = {}
-		@cupcakes = 0
 		@cc = $('cimage')
 		@cn = $('cupcake_number')
+		@cupcakes = 0
 		@cc.addEventListener 'click', @click.bind(@)
-		@load({c: 0, i: {}})
 		@last_tick = undefined
 		@last_interval = undefined
 		@picker = $('savepicker')
@@ -139,15 +270,25 @@ class Game
 				fileReader.readAsArrayBuffer(blob);
 
 		
-		@loop(0)
+		@animate(null)
+		@load({c: 0, i: {}})
+	animate: (prev) ->
+		n = window.performance.now()
+		if prev != null
+			elapsed = n - prev
+			for _, v of @items
+				v.animate(elapsed)
+		requestAnimationFrame () => @animate(n)
 	click: () ->
 		@cupcakes += @items.helpers.calc_output() + 1
-		@interrupt_tick()
+		#@interrupt_tick()
 	tick: (elapsed) ->
+		#console.log("Tick " + elapsed)
 		x = for _, i of @items
 			@cupcakes += i.update(elapsed)
 			i.ms_left
-		@cn.textContent = "#{format_number @cupcakes} Cupcakes"
+		
+		#console.log x
 		return Math.min x...
 	loop: (elapsed) ->
 		t = @tick(elapsed)
@@ -157,13 +298,26 @@ class Game
 	interrupt_tick: () ->
 		clearTimeout @last_interval
 		@loop(window.performance.now() - @last_tick)
+	update_upgrades: () ->
+		for _, i of @items
+			i.upgrades.update()
+	tooltip: (s) ->
+		$('tooltip').innerHTML = s
+	@property 'cupcakes',
+		get: () -> @_cupcakes
+		set: (val) ->
+			@_cupcakes = val
+			if @active_tab == 'upgrades' then @update_upgrades()
+			@cn.textContent = "#{format_number @_cupcakes} Cupcakes"
 	load: (save) ->
 		clearTimeout @last_interval
 		@cupcakes = save.c
+		t = true
 		for v, i in order
-			@items[v] = new ItemState(@, v)
-			if save.i[i]?
-				@items[v].load(save.i[i])
+			if ! @items[v]? then @items[v] = new ItemState(@, v)
+			@items[v].load(if save.i[i] then save.i[i] else {n: 0, u: 0})
+			@items[v].dom.visible = t
+			t = !! @items[v].n_items
 		@loop(0)
 		return
 	save: () ->
@@ -190,6 +344,8 @@ document.addEventListener 'DOMContentLoaded', () ->
 		q = $(i.getAttribute('data-toggle'))
 		do (q, i) ->
 			i.addEventListener 'click', () ->
+				game.active_tab = q.id
+				if q.id == 'upgrades' then game.update_upgrades()
 				for j in toggles
 					if j != q then j.style.display = "none"
 				q.style.display = ""
