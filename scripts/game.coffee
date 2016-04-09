@@ -139,7 +139,7 @@ class ItemDom
 			@item.game.tooltip(@item.type.caption)
 		@update()
 	update: () ->
-		@button_text = "Buy (#{format_number(@item.calc_price())})"
+		@button_text = "Buy\xa0\xa0\xa0\xa0\xa0\xa0\xa0#{format_number(@item.calc_price())}"
 		@number = @item.n_items
 		@int = @item.calc_interval()
 		if @int != Infinity and @number
@@ -224,7 +224,8 @@ class ItemState
 		if @n_items == 0
 			@first_update = true
 			@upgrades.dom.update()
-		@game.items[order[@type.idx+1]].dom.visible = true
+		if @type.idx + 1 < order.length
+			@game.items[order[@type.idx+1]].dom.visible = true
 		@n_items += n
 		@game.interrupt_tick()
 		@dom.update()

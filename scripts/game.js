@@ -280,7 +280,7 @@ ItemDom = (function() {
 
   ItemDom.prototype.update = function() {
     var o;
-    this.button_text = "Buy (" + (format_number(this.item.calc_price())) + ")";
+    this.button_text = "Buy\xa0\xa0\xa0\xa0\xa0\xa0\xa0" + (format_number(this.item.calc_price()));
     this.number = this.item.n_items;
     this.int = this.item.calc_interval();
     if (this.int !== Infinity && this.number) {
@@ -453,7 +453,9 @@ ItemState = (function() {
       this.first_update = true;
       this.upgrades.dom.update();
     }
-    this.game.items[order[this.type.idx + 1]].dom.visible = true;
+    if (this.type.idx + 1 < order.length) {
+      this.game.items[order[this.type.idx + 1]].dom.visible = true;
+    }
     this.n_items += n;
     this.game.interrupt_tick();
     this.dom.update();
