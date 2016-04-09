@@ -66,7 +66,7 @@ class UpgradeDom
 	init: () ->
 		@name = @us.item.type.name
 		udom = @
-		@el.addEventListener 'mouseover', =>
+		@el.addEventListener 'mouseenter', =>
 			@us.item.game.tooltip(@us.item.type.caption)
 		for v, i in @els.upgrades
 			v.addEventListener 'click', () ->

@@ -157,7 +157,7 @@ UpgradeDom = (function() {
     var fn, i, l, len, ref, u, udom, v;
     this.name = this.us.item.type.name;
     udom = this;
-    this.el.addEventListener('mouseover', (function(_this) {
+    this.el.addEventListener('mouseenter', (function(_this) {
       return function() {
         return _this.us.item.game.tooltip(_this.us.item.type.caption);
       };
