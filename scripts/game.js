@@ -293,6 +293,10 @@ ItemDom = (function() {
     return this.els.progress.setAttribute('data-text', o.length < 10 ? o + " cupcakes" : o);
   };
 
+  ItemDom.prototype.update_buyable = function() {
+    return this.els.button.disabled = this.item.calc_price() > this.item.game.cupcakes;
+  };
+
   ItemDom.prototype.animate = function(elapsed) {
     if (this.int !== Infinity) {
       return this.progress = (this.progress + elapsed) % this.int;
@@ -587,6 +591,17 @@ Game = (function() {
     return results;
   };
 
+  Game.prototype.update_buyable = function() {
+    var _, i, ref, results;
+    ref = this.items;
+    results = [];
+    for (_ in ref) {
+      i = ref[_];
+      results.push(i.dom.update_buyable());
+    }
+    return results;
+  };
+
   Game.prototype.tooltip = function(s) {
     return $('tooltip').innerHTML = s;
   };
@@ -599,6 +614,9 @@ Game = (function() {
       this._cupcakes = val;
       if (this.active_tab === 'upgrades') {
         this.update_upgrades();
+      }
+      if (this.active_tab === 'inventory') {
+        this.update_buyable();
       }
       return this.cn.textContent = (format_number(this._cupcakes)) + " Cupcakes";
     }
@@ -664,6 +682,7 @@ Game = (function() {
 document.addEventListener('DOMContentLoaded', function() {
   var ch, fn, i, l, len, q, toggles, x;
   window.game = new Game();
+  game.active_tab = 'inventory';
   game.browser_load();
   ch = $('tabs').children;
   toggles = (function() {
@@ -681,6 +700,9 @@ document.addEventListener('DOMContentLoaded', function() {
       game.active_tab = q.id;
       if (q.id === 'upgrades') {
         game.update_upgrades();
+      }
+      if (q.id === 'iventory') {
+        game.update_buyable();
       }
       for (m = 0, len1 = toggles.length; m < len1; m++) {
         j = toggles[m];

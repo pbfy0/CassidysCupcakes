@@ -149,6 +149,8 @@ class ItemDom
 			@els.progress.style.display = "none"
 		o = format_number(@item.calc_output())
 		@els.progress.setAttribute('data-text', if o.length < 10 then o + " cupcakes" else o)
+	update_buyable: () ->
+		@els.button.disabled = @item.calc_price() > @item.game.cupcakes
 	animate: (elapsed) ->
 		if @int != Infinity then @progress = (@progress + elapsed) % @int
 	a_reset: () ->
@@ -301,6 +303,9 @@ class Game
 	update_upgrades: () ->
 		for _, i of @items
 			i.upgrades.update()
+	update_buyable: () ->
+		for _, i of @items
+			i.dom.update_buyable()
 	tooltip: (s) ->
 		$('tooltip').innerHTML = s
 	@property 'cupcakes',
@@ -308,6 +313,7 @@ class Game
 		set: (val) ->
 			@_cupcakes = val
 			if @active_tab == 'upgrades' then @update_upgrades()
+			if @active_tab == 'inventory' then @update_buyable()
 			@cn.textContent = "#{format_number @_cupcakes} Cupcakes"
 	load: (save) ->
 		clearTimeout @last_interval
@@ -337,6 +343,7 @@ class Game
 
 document.addEventListener 'DOMContentLoaded', () ->
 	window.game = new Game()
+	game.active_tab = 'inventory'
 	game.browser_load()
 	ch = $('tabs').children
 	toggles = ($(x.getAttribute('data-toggle')) for x in ch)
@@ -346,6 +353,7 @@ document.addEventListener 'DOMContentLoaded', () ->
 			i.addEventListener 'click', () ->
 				game.active_tab = q.id
 				if q.id == 'upgrades' then game.update_upgrades()
+				if q.id == 'iventory' then game.update_buyable()
 				for j in toggles
 					if j != q then j.style.display = "none"
 				q.style.display = ""
