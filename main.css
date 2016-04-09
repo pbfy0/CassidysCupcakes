@@ -189,6 +189,16 @@ body {
 	background-size: contain;
 	background-repeat: no-repeat;
 }
+.storeitem > div > button[disabled] {
+	background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+				url('images/cupcake.svg') 2.2em 0em,
+				linear-gradient(to bottom, rgba(255,255,255,0.75) 0%, rgba(248,248,248,0) 40%),
+				linear-gradient(to bottom, rgba(0,116,179,0) 60%, rgba(117,224,247,0.75) 100%),
+				linear-gradient(to bottom, rgba(0,39,157,1) 0%, rgba(0,181,253,1) 100%);
+	background-size: contain;
+	background-repeat: no-repeat;
+	color: #ccc;
+}
 .storeitem > div >  progress {
 	float: right;
 	-webkit-appearance: none;
