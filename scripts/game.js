@@ -27,28 +27,30 @@ u_mod = function(a, b) {
 };
 
 obf = function(s) {
-  var x;
-  return ((function() {
+  var r, x;
+  r = (Math.random() * ob.b.length) | 0;
+  return ob.b[r] + ((function() {
     var len, m, ref1, results;
     ref1 = s.split("");
     results = [];
     for (i = m = 0, len = ref1.length; m < len; i = ++m) {
       x = ref1[i];
-      results.push(ob.b[u_mod(ob.f[x] + i, ob.b.length)]);
+      results.push(ob.b[u_mod(ob.f[x] + i + r, ob.b.length)]);
     }
     return results;
   })()).join("");
 };
 
 deobf = function(s) {
-  var x;
+  var r, x;
+  r = ob.r[s[0]];
   return ((function() {
     var len, m, ref1, results;
-    ref1 = s.split("");
+    ref1 = s.substr(1).split("");
     results = [];
     for (i = m = 0, len = ref1.length; m < len; i = ++m) {
       x = ref1[i];
-      results.push(ob.a[u_mod(ob.r[x] - i, ob.a.length)]);
+      results.push(ob.a[u_mod(ob.r[x] - i - r, ob.a.length)]);
     }
     return results;
   })()).join("");
@@ -568,9 +570,22 @@ Game = (function() {
     var scope;
     this.items = {};
     this.cc = $('cimage');
+    this.ce = $('cupcake');
     this.cn = $('cupcake_number');
     this.cupcakes = 0;
-    this.cc.addEventListener('click', this.click.bind(this));
+    this.cc.addEventListener('click', (function(_this) {
+      return function(event) {
+        event.stopPropagation();
+        return _this.click();
+      };
+    })(this));
+    this.ce.addEventListener('click', (function(_this) {
+      return function() {
+        if (document.querySelector('#cimage:hover')) {
+          return _this.click();
+        }
+      };
+    })(this));
     this.last_tick = void 0;
     this.last_interval = void 0;
     this.picker = $('savepicker');
@@ -827,7 +842,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (q.id === 'upgrades') {
         game.update_upgrades();
       }
-      if (q.id === 'iventory') {
+      if (q.id === 'inventory') {
         game.update_buyable();
       }
       for (p = 0, len1 = toggles.length; p < len1; p++) {
@@ -858,8 +873,11 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('resize', function() {
     return game.fix_tooltip();
   });
-  game.fix_tooltip();
   setInterval((function() {
     return game.browser_save();
   }), 30000);
+});
+
+window.addEventListener('load', function() {
+  return game.fix_tooltip();
 });

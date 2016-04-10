@@ -282,9 +282,15 @@ class Game
 	constructor: () ->
 		@items = {}
 		@cc = $('cimage')
+		@ce = $('cupcake')
 		@cn = $('cupcake_number')
 		@cupcakes = 0
-		@cc.addEventListener 'click', @click.bind(@)
+		@cc.addEventListener 'click', (event) =>
+			event.stopPropagation()
+			@click()
+		@ce.addEventListener 'click', =>
+			if document.querySelector('#cimage:hover')
+				@click()
 		@last_tick = undefined
 		@last_interval = undefined
 		@picker = $('savepicker')
@@ -408,7 +414,7 @@ document.addEventListener 'DOMContentLoaded', () ->
 			i.addEventListener 'click', () ->
 				game.active_tab = q.id
 				if q.id == 'upgrades' then game.update_upgrades()
-				if q.id == 'iventory' then game.update_buyable()
+				if q.id == 'inventory' then game.update_buyable()
 				for j in toggles
 					if j != q then j.style.display = "none"
 				q.style.display = ""
