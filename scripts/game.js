@@ -614,8 +614,9 @@ Game = (function() {
     });
     $$('#importcc button').addEventListener('click', (function(_this) {
       return function() {
-        prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol');
-        _this.prompt_load();
+        if (prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')) {
+          _this.prompt_load();
+        }
         return _this.close_settings();
       };
     })(this));
@@ -623,10 +624,9 @@ Game = (function() {
       return function() {
         var pr;
         pr = prompt('Paste save here');
-        if (pr == null) {
-          return false;
+        if (pr != null) {
+          _this.load(JSON.parse(deobf(pr)));
         }
-        _this.load(JSON.parse(deobf(pr)));
         return _this.close_settings();
       };
     })(this));

@@ -309,13 +309,13 @@ class Game
 				fileReader.readAsArrayBuffer(blob);
 		
 		$$('#importcc button').addEventListener 'click', () =>
-			prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
-			@prompt_load()
+			if prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
+				@prompt_load()
 			@close_settings()
 		$$('#import button').addEventListener 'click', () =>
 			pr = prompt('Paste save here')
-			if ! pr? then return false
-			@load(JSON.parse(deobf(pr)))
+			if pr?
+				@load(JSON.parse(deobf(pr)))
 			@close_settings()
 		$$('#export button').addEventListener 'click', () =>
 			prompt('Save this somewhere safe', obf(JSON.stringify(@save())))
