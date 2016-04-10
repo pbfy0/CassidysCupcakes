@@ -1,7 +1,26 @@
 $ = document.getElementById.bind(document)
+$$ = document.querySelector.bind(document)
 Function::property = (prop, desc) ->
 	Object.defineProperty @prototype, prop, desc
 
+# this is pointless. I have no idea why I made it so complicated.
+ob =
+	a: 'ci"4.n293{10u:65,}87z'
+	b: 'dnjgpkmhbstfrwlqcyxvz'
+	f: {}
+	r: {}
+
+for i in [0...ob.a.length]
+	ob.f[ob.a[i]] = i
+	ob.r[ob.b[i]] = i
+u_mod = (a, b) ->
+        a - Math.floor(a/b)*b
+# but was that comment about the obfuscation or the game as a whole
+
+obf = (s) ->
+	(ob.b[u_mod(ob.f[x]+i, ob.b.length)] for x, i in s.split("")).join("")
+deobf = (s) ->
+	(ob.a[u_mod(ob.r[x]-i, ob.a.length)] for x, i in s.split("")).join("")
 convert_save = (fs) ->
 	r = {c: fs.Cupcakes, i: {}}
 	for i in [0..7]
@@ -16,6 +35,11 @@ product = (list) ->
 	for el in list
 		o *= el
 	return o
+sum = (list) ->
+	o = 0
+	for el in list
+		o += el
+	return o
 a = ['K', 'M', 'B', 'T', 'QD', 'QN', 'SX']
 add_commas = (s) ->
 	a_ = s.split('').reverse().join('')
@@ -23,7 +47,7 @@ add_commas = (s) ->
 format_number = (n) ->
 	g = 0
 	d = n >= 10000
-	while n >= 10000000
+	while n >= 10000000 and a[g]?
 		g++
 		n /= 1000
 	f = Math.round(n)
@@ -170,7 +194,7 @@ class ItemDom
 		set: (val) -> @els.img.src = val
 	@property 'progress',
 		get: () -> @els.progress.value
-		set: (val) -> @els.progress.value = val
+		set: (val) -> @els.progress.value = Math.round(val)
 	@property 'number',
 		get: () -> @_number
 		set: (val) ->
@@ -195,32 +219,35 @@ class ItemState
 		@dom.a_reset()
 	save: () ->
 		if @n_items then {n: @n_items, u: @upgrades.n_active()}
-	calc_price: () ->
+	calc_price: (n=@n_items) ->
 		pm = @type.price_mult
-		if @n_items < 10 then pm *= 1
-		else if @n_items < 50 then pm *= 1.2
-		else if @n_items < 100 then pm *= 1.4
-		else if @n_items < 500 then pm *= 1.6
-		else if @n_items < 1000 then pm *= 3.3
-		else if @n_items < 6000 then pm *= 6.5
+		if n < 10 then pm *= 1
+		else if n < 50 then pm *= 1.2
+		else if n < 100 then pm *= 1.4
+		else if n < 500 then pm *= 1.6
+		else if n < 1000 then pm *= 3.3
+		else if n < 6000 then pm *= 6.5
 		
 		pmg = @type.margin_price
-		if @n_items > 400
+		if n > 400
 			if pmg == 1 then pmg = 50
 			if pmg == 5 then pmg = 75
-		else if @n_items > 500 # wtf
+		else if n > 500 # wtf
 			0
 		
-		extra = pmg * @n_items * pm
+		extra = pmg * n * pm
 		return @type.base_price + extra
 	calc_output: () ->
 		@n_items * @type.output * @upgrades.calc_o_factor()
 	calc_interval: () ->
 		if @type.interval == null then return Infinity
 		@type.interval * @upgrades.calc_i_factor() * 1000
+	calc_price_n: (n) ->
+		sum(@calc_price(i + @n_items) for i in [0...n])
 	buy: (n=1) ->
-		if @game.cupcakes < @calc_price() * n then return false
-		@game.cupcakes -= @calc_price() * n
+		pr = @calc_price_n(n)
+		if @game.cupcakes < pr then return false
+		@game.cupcakes -= pr
 		if @n_items == 0
 			@first_update = true
 			@upgrades.dom.update()
@@ -271,9 +298,30 @@ class Game
 					scope.load(convert_save(decodeLSO(u8a)));
 					console.log('Loaded ccSave.sol')
 				fileReader.readAsArrayBuffer(blob);
-
 		
+		$$('#importcc button').addEventListener 'click', () =>
+			prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
+			@prompt_load()
+			@close_settings()
+		$$('#import button').addEventListener 'click', () =>
+			@load(JSON.parse(deobf(prompt('Paste save here'))))
+			@close_settings()
+		$$('#export button').addEventListener 'click', () =>
+			prompt('Save this somewhere safe', obf(JSON.stringify(@save())))
+			@close_settings()
+		$$('#reset button').addEventListener 'click', () =>
+			if confirm('Are you sure you want to wipe your save?')
+				@reset()
+			@close_settings()
+		$('settingsclose').addEventListener 'click', () =>
+			@close_settings()
+		$('opensettings').addEventListener 'click', () =>
+			$('settings').style.display = ''
 		@animate(null)
+		@reset()
+	close_settings: () ->
+		$('settings').style.display = 'none'
+	reset: () ->
 		@load({c: 0, i: {}})
 	animate: (prev) ->
 		n = window.performance.now()
@@ -309,6 +357,10 @@ class Game
 			i.dom.update_buyable()
 	tooltip: (s) ->
 		$('tooltip').innerHTML = s
+		@fix_tooltip()
+	fix_tooltip: () ->
+		x = $('tooltip')
+		x.style.marginLeft = x.clientHeight * 275 / 318 + "px"
 	@property 'cupcakes',
 		get: () -> @_cupcakes
 		set: (val) ->
@@ -363,6 +415,11 @@ document.addEventListener 'DOMContentLoaded', () ->
 				i.classList.add('active')
 		continue
 	window.addEventListener 'beforeunload', () -> game.browser_save()
+	window.addEventListener 'resize', () ->
+		game.fix_tooltip()
+		
 	setInterval (() -> game.browser_save()), 30000
 	#$('inventory').appendChild $('storetemplate').children[0].cloneNode(true)
 	return
+window.addEventListener 'load', () ->
+	game.fix_tooltip()

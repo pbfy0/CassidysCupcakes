@@ -6,10 +6,11 @@
 		<script src="scripts/lso.js"></script>
 		<script src="scripts/data.js"></script>
 		<script src="scripts/game.js"></script>
-		<link rel="stylesheet" href="main.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/buttons.css" />
 	</head>
 	<body>
-		<input type="file" id="savepicker" accept="ccSave.sol" />
+		<input type="file" id="savepicker" accept=".sol" />
 		<div id="templates">
 			<div id="storetemplate">
 			<div class="storeitem">
@@ -18,7 +19,7 @@
 					<span class="storename"></span>
 					<span class="storenumber"></span>
 					<div class="clear"></div>
-					<button></button>
+					<button class="buy"></button>
 					<progress value="0"></progress>
 				</div>
 			</div>
@@ -41,7 +42,12 @@
 		</div>
 		<div id="container">
 			<div>
-				<div id="controls">Test</div>
+				<div id="controls">
+					<button class="bh">Stats</button>
+					<button id="opensettings" class="bh">
+						<img src="images/gears.svg" />
+					</button>
+				</div>
 				<h1 id="title">Cassidy's Cupcakes</h1>
 			</div>
 			<div id="panels">
@@ -67,13 +73,31 @@
 						</g>
 					</svg>
 					<div id="caption">
-						<img id="cbody" src="images/body.png" />
 						<div id="tooltip"></div>
 					</div>
 				</div>
 				<div style="clear: both;"></div>
 			</div>
 		</div>
-		<div id="padding"></div>
+		<div id="settings" style="display: none;">
+			<h2>Options</h2>
+			<div id="importcc">
+				<span>Import Cassidy's Cupcakes save</span>
+				<button class="bh">Import</button>
+			</div>
+			<div id="import">
+				<span>Import browser game save</span>
+				<button class="bh">Import</button>
+			</div>
+			<div id="export">
+				<span>Export browser game save</span>
+				<button class="bh">Export</button>
+			</div>
+			<div id="reset">
+				<span>Reset game</span>
+				<button class="bh">Reset</button>
+			</div>
+			<button class="bh" id="settingsclose">Close</button>
+		</div>
 	</body>
 </html>

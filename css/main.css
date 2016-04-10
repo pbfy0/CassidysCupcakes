@@ -1,13 +1,15 @@
+* { box-sizing: border-box}
+
 @font-face {
 	font-family: "Eras Demi ITC";
-	src: url("Eras_Demi_ITC.ttf");
+	src: url("../Eras_Demi_ITC.ttf");
 }
 
 html, body {
 	height: 100%;
 }
 body {
-	background-image: url("images/background.jpg");
+	background-image: url("../images/background.jpg");
 	background-size: 100% 100%;
 	background-repeat: repeat-x;
 	margin: 0;
@@ -15,10 +17,13 @@ body {
 	
 	display: flex;
 	flex-direction: column;
+	
+	font-size: .85em;
 }
 
 #container {
 	width: 80%;
+	min-width: 80em;
 	margin: 0 auto;
 	flex: 1;
 	
@@ -32,24 +37,30 @@ body {
 
 #title {
 	padding-left: 2.4em;
-	background-image: url("images/head.png");
+	background-image: url("../images/head.png");
 	background-repeat: no-repeat;
 	color: white;
 	font-size: 4em;
 	text-shadow: 0px 0px 0.4em #222222;
 	white-space: nowrap;
+	margin-top: .33em;
+	margin-bottom: .33em;
 	min-height: 101px;
 }
 #controls {
 	display: inline-block;
 	float: right;
-	background-color: black;
-	width: 300px;
-	position: relative;
+	font-size: 1.7em;
+	margin-top: 0.5em;
+}
+#controls > * {
+	vertical-align: middle;
 }
 
 #panels {
 	flex: 1;
+	margin-bottom: 1em;
+	height: 100%;
 }
 
 #store {
@@ -58,7 +69,6 @@ body {
 	display: flex;
 	flex-direction: column;
 	min-height: 100%;
-	margin-top: 1em;
 }
 #righthalf {
 	float: right;
@@ -129,8 +139,8 @@ body {
 	flex: 3 1 0;
 	background-repeat: no-repeat;
 	background-size: auto 100%;
+	background-image: url("../images/body.png");
 	display: flex;
-	flex-direction: row;
 }
 #cimage {
 	height: 100%;
@@ -140,7 +150,6 @@ body {
 	-ms-user-select: none;
 }
 #tooltip {
-	flex: 1;
 	background-color: #006;
 	border-radius: 0.5em;
 	color: white;
@@ -158,6 +167,7 @@ body {
 
 .storeitem > div > .storename {
 	float: left;
+	font-size: 1.3em;
 }
 
 .storeitem > div >  .storenumber {
@@ -168,40 +178,12 @@ body {
 }
 .storeitem > div >  button {
 	float: left;
-	background: url('images/cupcake.svg') 2.2em 0em,
-				linear-gradient(to bottom, rgba(255,255,255,0.75) 0%, rgba(248,248,248,0) 40%),
-				linear-gradient(to bottom, rgba(0,116,179,0) 60%, rgba(117,224,247,0.75) 100%),
-				linear-gradient(to bottom, rgba(0,39,157,1) 0%, rgba(0,181,253,1) 100%);
-	background-size: contain;
-	background-repeat: no-repeat;
-	/*background-position: 3em 0px;*/
-	border-style: groove;
-    font-size: 1em;
-    color: white;
-	border-radius: 0.2em;
-	border-color: rgb(117,224,247);
 }
-.storeitem > div >  button:active {
-	background: url('images/cupcake.svg') 2.2em 0em,
-				linear-gradient(to top, rgba(255,255,255,0.75) 0%, rgba(248,248,248,0) 40%),
-				linear-gradient(to top, rgba(0,116,179,0) 60%, rgba(117,224,247,0.75) 100%),
-				linear-gradient(to top, rgba(0,39,157,1) 0%, rgba(0,181,253,1) 100%);
-	background-size: contain;
-	background-repeat: no-repeat;
-}
-.storeitem > div > button[disabled] {
-	background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-				url('images/cupcake.svg') 2.2em 0em,
-				linear-gradient(to bottom, rgba(255,255,255,0.75) 0%, rgba(248,248,248,0) 40%),
-				linear-gradient(to bottom, rgba(0,116,179,0) 60%, rgba(117,224,247,0.75) 100%),
-				linear-gradient(to bottom, rgba(0,39,157,1) 0%, rgba(0,181,253,1) 100%);
-	background-size: contain;
-	background-repeat: no-repeat;
-	color: #ccc;
-}
+
 .storeitem > div >  progress {
 	float: right;
 	-webkit-appearance: none;
+	height: 1.3em;
 }
 .storeitem > div > progress::-webkit-progress-value {
 	background: linear-gradient(to bottom, rgba(255,255,255,.65) 0%, rgba(255,255,255,.2) 33%, rgba(255,255,255,0) 33%),
@@ -221,6 +203,9 @@ body {
 	float: left;
 	width: 100%;
 	color: white;
+	position: relative;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 
@@ -235,21 +220,42 @@ body {
 .storeitem > div, .upgradeitem > div {
 	flex: 1;
 }
+.upgradeitem > * {
+	font-size: 1.3em;
+}
 
 .upgradeitem .upgrades > div {
 	width: 1em;
 	height: 1em;
 	display: inline-block;
-	background-image: url("images/nocheck.svg");
+	background-image: url("../images/nocheck.svg");
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	cursor: pointer;
 }
 
 .upgradeitem .upgrades > div.checked {
-	background-image: url("images/check.svg");
+	background-image: url("../images/check.svg");
 }
 
 .upgradeitem .upgrades > div.disabled {
 	opacity: 0.7;
+}
+
+#settings {
+	position: absolute;
+    margin: 0 auto;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background-color: beige;
+    padding: 1em;
+    font-size: 1.5em;
+	border: 0.1em solid black;
+	text-align: center;
+}
+
+#settings > * {
+	padding-top: 0.1em;
+	padding-bottom: 0.1em;
 }
