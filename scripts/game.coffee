@@ -18,9 +18,11 @@ u_mod = (a, b) ->
 # but was that comment about the obfuscation or the game as a whole
 
 obf = (s) ->
-	(ob.b[u_mod(ob.f[x]+i, ob.b.length)] for x, i in s.split("")).join("")
+	r = (Math.random()*ob.b.length) | 0
+	ob.b[r] + (ob.b[u_mod(ob.f[x]+i+r, ob.b.length)] for x, i in s.split("")).join("")
 deobf = (s) ->
-	(ob.a[u_mod(ob.r[x]-i, ob.a.length)] for x, i in s.split("")).join("")
+	r = ob.r[s[0]]
+	(ob.a[u_mod(ob.r[x]-i-r, ob.a.length)] for x, i in s.substr(1).split("")).join("")
 convert_save = (fs) ->
 	r = {c: fs.Cupcakes, i: {}}
 	for i in [0..7]
