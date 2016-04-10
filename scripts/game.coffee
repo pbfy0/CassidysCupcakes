@@ -261,7 +261,7 @@ class ItemState
 		@upgrades.update()
 		return true
 	update: (elapsed) ->
-		console.log(@type.name, @ms_left)
+		#console.log(@type.name, @ms_left)
 		if @n_items == 0 then return 0
 		if @first_update
 			@ms_left = 0
