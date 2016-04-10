@@ -313,7 +313,9 @@ class Game
 			@prompt_load()
 			@close_settings()
 		$$('#import button').addEventListener 'click', () =>
-			@load(JSON.parse(deobf(prompt('Paste save here'))))
+			pr = prompt('Paste save here')
+			if ! pr? then return false
+			@load(JSON.parse(deobf(pr)))
 			@close_settings()
 		$$('#export button').addEventListener 'click', () =>
 			prompt('Save this somewhere safe', obf(JSON.stringify(@save())))
@@ -399,6 +401,7 @@ class Game
 	browser_save: () ->
 		localStorage.setItem('ccSave', JSON.stringify(@save()))
 	browser_load: () ->
+		if ! localStorage? then return false
 		if ! localStorage.getItem('ccSave') then return false
 		game.load(JSON.parse(localStorage.getItem('ccSave')))
 		return true
@@ -424,7 +427,6 @@ document.addEventListener 'DOMContentLoaded', () ->
 				for j in ch
 					if j != i then j.classList.remove('active')
 				i.classList.add('active')
-		continue
 	window.addEventListener 'beforeunload', () -> game.browser_save()
 	window.addEventListener 'resize', () ->
 		game.fix_tooltip()

@@ -544,7 +544,6 @@ ItemState = (function() {
   };
 
   ItemState.prototype.update = function(elapsed) {
-    console.log(this.type.name, this.ms_left);
     if (this.n_items === 0) {
       return 0;
     }
@@ -622,7 +621,12 @@ Game = (function() {
     })(this));
     $$('#import button').addEventListener('click', (function(_this) {
       return function() {
-        _this.load(JSON.parse(deobf(prompt('Paste save here'))));
+        var pr;
+        pr = prompt('Paste save here');
+        if (pr == null) {
+          return false;
+        }
+        _this.load(JSON.parse(deobf(pr)));
         return _this.close_settings();
       };
     })(this));
@@ -700,7 +704,6 @@ Game = (function() {
       }
       return results;
     }).call(this);
-    console.log(x);
     return Math.min.apply(Math, x);
   };
 
@@ -809,6 +812,9 @@ Game = (function() {
   };
 
   Game.prototype.browser_load = function() {
+    if (typeof localStorage === "undefined" || localStorage === null) {
+      return false;
+    }
     if (!localStorage.getItem('ccSave')) {
       return false;
     }
@@ -869,7 +875,6 @@ document.addEventListener('DOMContentLoaded', function() {
     i = ch[l];
     q = $(i.getAttribute('data-toggle'));
     fn(q, i);
-    continue;
   }
   window.addEventListener('beforeunload', function() {
     return game.browser_save();
