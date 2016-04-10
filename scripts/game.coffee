@@ -9,10 +9,10 @@ ob =
 	b: 'dnjgpkmhbstfrwlqcyxvz'
 	f: {}
 	r: {}
-
-for i in [0...ob.a.length]
-	ob.f[ob.a[i]] = i
-	ob.r[ob.b[i]] = i
+do ->
+	for i in [0...ob.a.length]
+		ob.f[ob.a[i]] = i
+		ob.r[ob.b[i]] = i
 u_mod = (a, b) ->
         a - Math.floor(a/b)*b
 # but was that comment about the obfuscation or the game as a whole
@@ -261,6 +261,7 @@ class ItemState
 		@upgrades.update()
 		return true
 	update: (elapsed) ->
+		console.log(@type.name, @ms_left)
 		if @n_items == 0 then return 0
 		if @first_update
 			@ms_left = 0
@@ -360,9 +361,11 @@ class Game
 	update_upgrades: () ->
 		for _, i of @items
 			i.upgrades.update()
+		return
 	update_buyable: () ->
 		for _, i of @items
 			i.dom.update_buyable()
+		return
 	tooltip: (s) ->
 		$('tooltip').innerHTML = s
 		@fix_tooltip()
