@@ -105,7 +105,7 @@ body {
 	width: 90%;
 	margin: 0 auto;
 	flex: 1 1 0;
-	text-align: center;
+	text-align: center;@
 	color: white;
 	font-size: 2.5em;
 }
@@ -124,6 +124,7 @@ body {
 #cupcake {
 	display: block;
 	flex: 3 1 0;
+	min-height: 150px;
 }
 
 #cimage:hover > #ctop {
