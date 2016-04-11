@@ -245,7 +245,7 @@ class ItemState
 		if @type.interval == null then return Infinity
 		@type.interval * @upgrades.calc_i_factor() * 1000
 	calc_price_n: (n) ->
-		sum(@calc_price(i + @n_items) for i in [0...n])
+		sum(@calc_price(i + @n_items) for i in [0...n]) * if n < 0 then -0.5 else 1
 	buy: (n=1) ->
 		pr = @calc_price_n(n)
 		if @game.cupcakes < pr then return false

@@ -516,7 +516,7 @@ ItemState = (function() {
         results.push(this.calc_price(i + this.n_items));
       }
       return results;
-    }).call(this));
+    }).call(this)) * (n < 0 ? -0.5 : 1);
   };
 
   ItemState.prototype.buy = function(n) {
