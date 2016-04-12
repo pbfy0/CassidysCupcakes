@@ -81,7 +81,8 @@ class UpgradeState
 		@item.game.cupcakes -= next.price
 		@active.push(next)
 		@n++
-		@dom.update()
+		@update()
+		@item.dom.update()
 	update: ->
 		@dom.update()
 class UpgradeDom
@@ -270,7 +271,7 @@ class ItemState
 	update: (elapsed) ->
 		#console.log(@type.name, @ms_left)
 		if @n_items == 0 then return 0
-		if @first_update
+		if @first_update	
 			@ms_left = 0
 			@first_update = false
 		else
