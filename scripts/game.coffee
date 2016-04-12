@@ -4,17 +4,24 @@ Function::property = (prop, desc) ->
 	Object.defineProperty @prototype, prop, desc
 
 # this is pointless. I have no idea why I made it so complicated.
-ob =
-	a: 'ci"4.n293{10u:65,}87z'
-	b: 'dnjgpkmhbstfrwlqcyxvz'
-	f: {}
-	r: {}
-do ->
-	for i in [0...ob.a.length]
-		ob.f[ob.a[i]] = i
-		ob.r[ob.b[i]] = i
 u_mod = (a, b) ->
         a - Math.floor(a/b)*b
+
+class Obfuscator
+	constructor: (@a, @b) ->
+		@f = {}
+		@r = {}
+		for i in [0...@a.length]
+			@f[@a[i]] = i
+			@r[@b[i]] = i
+	obf: (s) ->
+		r = (Math.random()*@b.length) | 0
+		@b[r] + (@b[u_mod(@f[x]+i+r, @b.length)] for x, i in s.split("")).join("")
+	deobf: (s) ->
+		r = @r[s[0]]
+		(@a[u_mod(@r[x]-i-r, @a.length)] for x, i in s.substr(1).split("")).join("")
+ob_v1 = new Obfuscator('ci"4.n293{10u:65,}87z', 'dnjgpkmhbstfrwlqcyxvz')
+# 0.123456789{}:"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()`~-=_+[];',./<>?
 # but was that comment about the obfuscation or the game as a whole
 
 obf = (s) ->
@@ -315,10 +322,10 @@ class Game
 		$$('#import button').addEventListener 'click', () =>
 			pr = prompt('Paste save here')
 			if pr?
-				@load(JSON.parse(deobf(pr)))
+				@load(JSON.parse(ob_v1.deobf(pr)))
 			@close_settings()
 		$$('#export button').addEventListener 'click', () =>
-			prompt('Save this somewhere safe', obf(JSON.stringify(@save())))
+			prompt('Save this somewhere safe', ob_v1.obf(JSON.stringify(@save())))
 			@close_settings()
 		$$('#reset button').addEventListener 'click', () =>
 			if confirm('Are you sure you want to wipe your save?')
@@ -387,7 +394,7 @@ class Game
 		t = true
 		for v, i in order
 			if ! @items[v]? then @items[v] = new ItemState(@, v)
-			@items[v].load(if save.i[i] then save.i[i] else {n: 0, u: 0})
+			@items[v].load(save.i[i] ? {n: 0, u: 0})
 			@items[v].dom.visible = t
 			t = !! @items[v].n_items
 		@loop(0)
