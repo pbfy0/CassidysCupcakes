@@ -317,7 +317,7 @@ class Game
 				fileReader.readAsArrayBuffer(blob);
 		
 		$$('#importcc button').addEventListener 'click', () =>
-			if prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
+			if prompt('Browse to the following location', '%APPDATA%\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
 				@prompt_load()
 			@close_settings()
 		$$('#import button').addEventListener 'click', () =>

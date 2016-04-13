@@ -220,7 +220,8 @@ UpgradeState = (function() {
     this.item.game.cupcakes -= next.price;
     this.active.push(next);
     this.n++;
-    return this.dom.update();
+    this.update();
+    return this.item.dom.update();
   };
 
   UpgradeState.prototype.update = function() {
@@ -646,7 +647,7 @@ Game = (function() {
     });
     $$('#importcc button').addEventListener('click', (function(_this) {
       return function() {
-        if (prompt('Browse to the following location', '%APPDATA%\\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')) {
+        if (prompt('Browse to the following location', '%APPDATA%\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')) {
           _this.prompt_load();
         }
         return _this.close_settings();
