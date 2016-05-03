@@ -49,11 +49,11 @@ sum = (list) ->
 	for el in list
 		o += el
 	return o
-a = ['K', 'M', 'B', 'T', 'QD', 'QN', 'SX']
 add_commas = (s) ->
 	a_ = s.split('').reverse().join('')
 	return (x.split("").reverse().join("") for x in a_.match(/.{1,3}/g)).reverse().join(',')
 format_number = (n) ->
+	a = ['K', 'M', 'B', 'T', 'QD', 'QN', 'SX']
 	g = 0
 	d = n >= 10000
 	while n >= 10000000 and a[g]?
@@ -63,6 +63,10 @@ format_number = (n) ->
 	if d then f = add_commas(f.toString())
 	return f + if g then a[g-1] else ''
 class UpgradeState
+	_proxy:
+		blacklist: true
+		accessible:
+			set: 1
 	constructor: (@item, @n) ->
 		@all = @item.type.upgrades
 		@active = @all[0...@n]
@@ -86,6 +90,12 @@ class UpgradeState
 	update: ->
 		@dom.update()
 class UpgradeDom
+	_proxy:
+		blacklist: true
+		accessible:
+			init: 1
+			update: 1
+			
 	constructor: (@us) ->
 		@el = $('upgradetemplate').children[0].cloneNode(true)
 		@els = 
@@ -151,6 +161,14 @@ class UpgradeDom
 		set: (val) -> @els.name.textContent = val
 
 class ItemDom
+	_proxy:
+		blacklist: true
+		accessible:
+			init: 1
+			update: 1
+			update_buyable: 1
+			animate: 1
+			
 	constructor: (@item) ->
 		@el = $('storetemplate').children[0].cloneNode(true)
 		@els =
@@ -173,7 +191,7 @@ class ItemDom
 			@item.game.tooltip(@item.type.caption)
 		@update()
 	update: () ->
-		@button_text = "Buy\xa0\xa0\xa0\xa0\xa0\xa0\xa0#{format_number(@item.calc_price())}"
+		@button_text = "Buy#{if key.shift then " 10" else "\xa0\xa0\xa0"}\xa0\xa0\xa0\xa0#{format_number(@item.calc_price_s())}"
 		@number = @item.n_items
 		@int = @item.calc_interval()
 		if @int != Infinity and @number
@@ -195,6 +213,7 @@ class ItemDom
 		set: (val) ->
 			@_visible = val
 			@el.style.display = if val then "" else "none"
+			@item.game.items._proxy.accessible[@item.name] = val
 			return
 	@property 'name',
 		get: () -> @els.name.textContent
@@ -214,8 +233,17 @@ class ItemDom
 		get: () -> @els.button.textContent
 		set: (val) -> @els.button.textContent = val
 class ItemState
-	constructor: (@game, type) ->
-		@type = items[type]
+	_proxy:
+		blacklist: true
+		accessible:
+			animate: 1
+			load: 1
+			save: 1
+			update: 1
+			dom: 1
+			ms_left: 1
+	constructor: (@game, @name) ->
+		@type = items[@name]
 		if @type.interval == null then @update = () -> 0
 		@n_items = 0
 		@upgrades = new UpgradeState(@, 0)
@@ -237,6 +265,7 @@ class ItemState
 		else if n < 500 then pm *= 1.6
 		else if n < 1000 then pm *= 3.3
 		else if n < 6000 then pm *= 6.5
+		else pm *= 10
 		
 		pmg = @type.margin_price
 		if n > 400
@@ -254,6 +283,8 @@ class ItemState
 		@type.interval * @upgrades.calc_i_factor() * 1000
 	calc_price_n: (n) ->
 		sum(@calc_price(i + @n_items) for i in [0...n]) * if n < 0 then -0.5 else 1
+	calc_price_s: ->
+		if key.shift then @calc_price_n(10) else @calc_price()
 	buy: (n=1) ->
 		pr = @calc_price_n(n)
 		if @game.cupcakes < pr then return false
@@ -288,8 +319,38 @@ class ItemState
 		if @n_items > 0 then @dom.animate(elapsed)
 
 class Game
+	_proxy:
+		blacklist: true
+		accessible:
+			cc: 1
+			ce: 1
+			cn: 1
+			last_interval: 1
+			last_tick: 1
+			picker: 1
+			update_doms: 1
+			close_settings: 1
+			animate: 1
+			click: 1
+			tick: 1
+			loop: 1
+			interrupt_tick: 1
+			update_upgrades: 1
+			update_buyable: 1
+			tooltip: 1
+			fix_tooltip: 1
+			_load: 1
+			_save: 1
+			active_tab: 1
+			browser_load: 1
+			dev: 1
+			ipr: 1
+			
 	constructor: () ->
-		@items = {}
+		@pr = proxy_object(@)
+		#@_proxy = deep_merge({}, @_proxy)
+		@items = hide_pr({_proxy: {accessible: {}}})
+		@dev = false
 		@cc = $('cimage')
 		@ce = $('cupcake')
 		@cn = $('cupcake_number')
@@ -315,7 +376,8 @@ class Game
 					scope.load(convert_save(decodeLSO(u8a)));
 					console.log('Loaded ccSave.sol')
 				fileReader.readAsArrayBuffer(blob);
-		
+		key 'shift', (=> @update_doms()), (=> @update_doms(); console.log('test'))
+			
 		$$('#importcc button').addEventListener 'click', () =>
 			if prompt('Browse to the following location', '%APPDATA%\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
 				@prompt_load()
@@ -323,10 +385,10 @@ class Game
 		$$('#import button').addEventListener 'click', () =>
 			pr = prompt('Paste save here')
 			if pr?
-				@load(JSON.parse(ob_v1.deobf(pr)))
+				@load(pr)
 			@close_settings()
 		$$('#export button').addEventListener 'click', () =>
-			prompt('Save this somewhere safe', ob_v1.obf(JSON.stringify(@save())))
+			prompt('Save this somewhere safe', @save())
 			@close_settings()
 		$$('#reset button').addEventListener 'click', () =>
 			if confirm('Are you sure you want to wipe your save?')
@@ -338,10 +400,13 @@ class Game
 			$('settings').style.display = ''
 		@animate(null)
 		@reset()
+	update_doms: () ->
+		for i in @items
+			i.dom.update()
 	close_settings: () ->
 		$('settings').style.display = 'none'
 	reset: () ->
-		@load({c: 0, i: {}})
+		@_load({c: 0, i: {}})
 	animate: (prev) ->
 		n = window.performance.now()
 		if prev != null
@@ -389,8 +454,11 @@ class Game
 			if @active_tab == 'upgrades' then @update_upgrades()
 			if @active_tab == 'inventory' then @update_buyable()
 			@cn.textContent = "#{format_number @_cupcakes} Cupcakes"
-	load: (save) ->
+	_load: (save) ->
 		clearTimeout @last_interval
+		if save[''] == 123
+			@dev = true
+			window.game = @
 		@cupcakes = save.c
 		t = true
 		for v, i in order
@@ -400,24 +468,31 @@ class Game
 			t = !! @items[v].n_items
 		@loop(0)
 		return
-	save: () ->
+	_save: () ->
 		o = {c: @cupcakes, i: {}}
+		if @dev then o[''] = 123
 		for k, v of @items
 			t = v.save()
 			if t then o.i[v.type.idx] = t
 		return o
+	load: (save) ->
+		@_load(JSON.parse(ob_v1.deobf(save)))
+	save: () ->
+		ob_v1.obf(JSON.stringify(@_save()))
 	browser_save: () ->
-		localStorage.setItem('ccSave', JSON.stringify(@save()))
+		localStorage.setItem('ccSave', @save())
 	browser_load: () ->
 		if ! localStorage? then return false
-		if ! localStorage.getItem('ccSave') then return false
-		game.load(JSON.parse(localStorage.getItem('ccSave')))
+		ss = localStorage.getItem('ccSave')
+		if ! ss then return false
+		if ss.startsWith('{') then @_load(JSON.parse(ss))
+		else @load(localStorage.getItem('ccSave'))
 		return true
 	prompt_load: () ->
 		$('savepicker').click()
 
 document.addEventListener 'DOMContentLoaded', () ->
-	window.game = new Game()
+	game = new Game()
 	game.active_tab = 'inventory'
 	game.browser_load()
 	ch = $('tabs').children
@@ -440,7 +515,8 @@ document.addEventListener 'DOMContentLoaded', () ->
 		game.fix_tooltip()
 		
 	setInterval (() -> game.browser_save()), 30000
+	window.addEventListener 'load', () ->
+		game.fix_tooltip()
 	#$('inventory').appendChild $('storetemplate').children[0].cloneNode(true)
+	if ! window.game then window.game = game.pr
 	return
-window.addEventListener 'load', () ->
-	game.fix_tooltip()
