@@ -39,6 +39,8 @@ convert_save = (fs) ->
 		r.i[i] = {n: n, u: upgrades}
 	return r
 
+g_shift = false
+
 product = (list) ->
 	o = 1
 	for el in list
@@ -186,12 +188,12 @@ class ItemDom
 		@img = "images/items/#{@item.type.img}"
 		@name = @item.type.name
 		@els.button.addEventListener 'click', =>
-			@item.buy()
+			@item.buy(if g_shift then 10 else 1)
 		@el.addEventListener 'mouseover', =>
 			@item.game.tooltip(@item.type.caption)
 		@update()
 	update: () ->
-		@button_text = "Buy#{if key.shift then " 10" else "\xa0\xa0\xa0"}\xa0\xa0\xa0\xa0#{format_number(@item.calc_price_s())}"
+		@button_text = "Buy#{if g_shift then " 10" else "\xa0\xa0\xa0"}\xa0\xa0\xa0\xa0#{format_number(@item.calc_price_s())}"
 		@number = @item.n_items
 		@int = @item.calc_interval()
 		if @int != Infinity and @number
@@ -201,8 +203,9 @@ class ItemDom
 			@els.progress.style.display = "none"
 		o = format_number(@item.calc_output())
 		@els.progress.setAttribute('data-text', if o.length < 10 then o + " cupcakes" else o)
+		@update_buyable()
 	update_buyable: () ->
-		@els.button.disabled = @item.calc_price() > @item.game.cupcakes
+		@els.button.disabled = @item.calc_price_s() > @item.game.cupcakes
 	animate: (elapsed) ->
 		if @int != Infinity then @progress = (@progress + elapsed) % @int
 	a_reset: () ->
@@ -284,7 +287,7 @@ class ItemState
 	calc_price_n: (n) ->
 		sum(@calc_price(i + @n_items) for i in [0...n]) * if n < 0 then -0.5 else 1
 	calc_price_s: ->
-		if key.shift then @calc_price_n(10) else @calc_price()
+		if g_shift then @calc_price_n(10) else @calc_price()
 	buy: (n=1) ->
 		pr = @calc_price_n(n)
 		if @game.cupcakes < pr then return false
@@ -345,11 +348,13 @@ class Game
 			browser_load: 1
 			dev: 1
 			ipr: 1
+			_items: 1
 			
 	constructor: () ->
 		@pr = proxy_object(@)
 		#@_proxy = deep_merge({}, @_proxy)
-		@items = hide_pr({_proxy: {accessible: {}}})
+		@_items = {_proxy: {accessible: {}}}
+		@items = hide_pr(@_items)
 		@dev = false
 		@cc = $('cimage')
 		@ce = $('cupcake')
@@ -376,8 +381,15 @@ class Game
 					scope.load(convert_save(decodeLSO(u8a)));
 					console.log('Loaded ccSave.sol')
 				fileReader.readAsArrayBuffer(blob);
-		key 'shift', (=> @update_doms()), (=> @update_doms(); console.log('test'))
-			
+		#key 'shift', (=> @update_doms()), (=> @update_doms(); console.log('test'))
+		document.addEventListener 'keydown', (ev) =>
+			if ev.key == 'Shift'
+				g_shift = true
+				@update_doms()
+		document.addEventListener 'keyup', (ev) =>
+			if ev.key == 'Shift'
+				g_shift = false
+				@update_doms()
 		$$('#importcc button').addEventListener 'click', () =>
 			if prompt('Browse to the following location', '%APPDATA%\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
 				@prompt_load()
@@ -401,8 +413,9 @@ class Game
 		@animate(null)
 		@reset()
 	update_doms: () ->
-		for i in @items
+		for k, i of @items
 			i.dom.update()
+		return
 	close_settings: () ->
 		$('settings').style.display = 'none'
 	reset: () ->
