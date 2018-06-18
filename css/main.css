@@ -23,7 +23,7 @@ body {
 
 #container {
 	width: 80%;
-	min-width: 80em;
+	/*min-width: 80em;*/
 	max-width: 90em;
 	margin: 0 auto;
 	flex: 1;
@@ -66,14 +66,14 @@ body {
 
 #store {
 	float: left;
-	width: 50%;
+	width: 42%;
 	display: flex;
 	flex-direction: column;
 	min-height: 100%;
 }
 #righthalf {
 	float: right;
-	width: 50%;
+	width: 58%;
 	display: flex;
 	flex-direction: column;
 	min-height: 100%;
@@ -104,10 +104,12 @@ body {
 	background-color: rgba(52, 56, 57, 0.7);
 	width: 90%;
 	margin: 0 auto;
-	flex: 1 1 0;
+	flex: 0 0 0;
 	text-align: center;
 	color: white;
 	font-size: 2.5em;
+	padding-top: 0.5em;
+	padding-bottom: 1.5em;
 }
 #items {
 	flex: 1;
@@ -124,6 +126,8 @@ body {
 #cupcake {
 	display: block;
 	flex: 3 1 0;
+	padding-top: 10%;
+	padding-bottom: 10%;
 	min-height: 150px;
 }
 
@@ -136,11 +140,13 @@ body {
 }
 
 #caption {
-	flex: 3 1 0;
+	flex: 2.5 1 0;
 	background-repeat: no-repeat;
-	background-size: auto 100%;
+	background-size: auto 90%;
 	background-image: url("../images/body.png");
+	background-position: left center;
 	display: flex;
+	max-height: 28em;
 }
 #cimage {
 	height: 100%;
@@ -153,8 +159,9 @@ body {
 	background-color: #006;
 	border-radius: 0.5em;
 	color: white;
-	padding: .25em;
+	padding: 1em;
 	font-size: 2.5em;
+	width: 100%;
 }
 
 #savepicker {
