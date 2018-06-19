@@ -24,21 +24,6 @@ ob_v1 = new Obfuscator('ci"4.n293{10u:65,}87z', 'dnjgpkmhbstfrwlqcyxvz')
 # 0.123456789{}:"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()`~-=_+[];',./<>?
 # but was that comment about the obfuscation or the game as a whole
 
-obf = (s) ->
-	r = (Math.random()*ob.b.length) | 0
-	ob.b[r] + (ob.b[u_mod(ob.f[x]+i+r, ob.b.length)] for x, i in s.split("")).join("")
-deobf = (s) ->
-	r = ob.r[s[0]]
-	(ob.a[u_mod(ob.r[x]-i-r, ob.a.length)] for x, i in s.substr(1).split("")).join("")
-convert_save = (fs) ->
-	r = {c: fs.Cupcakes, i: {}}
-	for i in [0..7]
-		n = fs['Inventory' + i]
-		if n == 0 then continue
-		upgrades = if fs.Upgrades[i] then fs.Upgrades[i].length else 0
-		r.i[i] = {n: n, u: upgrades}
-	return r
-
 g_shift = false
 
 product = (list) ->

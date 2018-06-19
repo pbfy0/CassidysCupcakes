@@ -83,6 +83,16 @@ var items = {
 		price_mult: 1.3,
 		caption: "Might as well make use of their celestial-ness",
 		upgrades: [o(5000000000), t(55500000000), o(660000000000), t(7500000000000), O(6600000000000)]
+	},
+	grandma: {
+		name: "Grandma",
+		output: 15000000,
+		interval: 70,
+		base_price: 600000000,
+		margin_price: 20000000,
+		price_mult: 1.2,
+		caption: "\"Stop eating the batter, young miss!\" -Grandma",
+		upgrades: [o(10000000000), t(550000000000), o(6050000000000), t(66550000000000), O(732050000000000)]
 	}
 }
 var reqs = [10, 50, 150, 250, 500];
@@ -93,7 +103,7 @@ for(var xi in items){
 	}
 }
 
-var order = ["helpers", "scarlet", "orion", "grimm", "kitchen", "ivaldi", "farms", "celestial"]
+var order = ["helpers", "scarlet", "orion", "grimm", "kitchen", "ivaldi", "farms", "celestial", "grandma"]
 for(var i = 0; i < order.length; i++){
 	items[order[i]].idx = i;
 	items[order[i]].img = i + '.svg'
