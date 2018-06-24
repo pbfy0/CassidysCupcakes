@@ -39,7 +39,7 @@ sum = (list) ->
 add_commas = (s) ->
 	a_ = s.split('').reverse().join('')
 	return (x.split("").reverse().join("") for x in a_.match(/.{1,3}/g)).reverse().join(',')
-format_number = (n) ->
+a_format_number = (n) ->
 	a = ['K', 'M', 'B', 'T', 'QD', 'QN', 'SX']
 	g = 0
 	d = n >= 10000
@@ -49,6 +49,29 @@ format_number = (n) ->
 	f = Math.round(n)
 	if d then f = add_commas(f.toString())
 	return f + if g then a[g-1] else ''
+g_format_number = (n) ->
+	n = Math.round(n)
+	if n < 10000 then return n.toString()
+	a = ['', 'K', 'M', 'B', 'T', 'QD', 'QN', 'SX']
+	b_10_3 = (Math.log10(n) / 3) | 0
+	nn = n / Math.pow(10, b_10_3 * 3)
+	return nn.toPrecision(4) + a[b_10_3]
+
+g_settings = {}
+has_localstorage = true
+try
+	has_localstorage = localStorage && true
+catch e
+	has_localstorage = false
+console.log(has_localstorage)
+do ->
+	ss = if has_localstorage then (localStorage.getItem('ccSettings') ? '{}') else '{}'
+	g_settings = JSON.parse(ss)
+	_settings = {
+		g_format: true
+	}
+	g_settings = Object.assign(_settings, g_settings)
+format_number = if g_settings.g_format then g_format_number else a_format_number
 class UpgradeState
 	_proxy:
 		blacklist: true
@@ -375,6 +398,13 @@ class Game
 			if ev.key == 'Shift'
 				g_shift = false
 				@update_doms()
+		g_fmt_checkbox = $$('#numberformat input')
+		g_fmt_checkbox.checked = g_settings.g_format
+		g_fmt_checkbox.addEventListener 'click', (ev) =>
+			format_number = if ev.target.checked then g_format_number else a_format_number
+			@update_doms()
+			@cupcakes = @cupcakes
+			g_settings.g_format = ev.target.checked
 		$$('#importcc button').addEventListener 'click', () =>
 			if prompt('Browse to the following location', '%APPDATA%\\BrawlhallaAir\\Local Store\\#SharedObjects\\ccSave.sol')
 				@prompt_load()
@@ -508,7 +538,13 @@ document.addEventListener 'DOMContentLoaded', () ->
 				for j in ch
 					if j != i then j.classList.remove('active')
 				i.classList.add('active')
-	window.addEventListener 'beforeunload', () -> game.browser_save()
+	window.addEventListener 'beforeunload', (ev) ->
+		if has_localstorage
+			game.browser_save()
+			localStorage.setItem('ccSettings', JSON.stringify(g_settings))
+		else
+			ev.preventDefault()
+			return ev.returnValue = 'Warning! Export save before leaving the page or else your progress will be lost'
 	window.addEventListener 'resize', () ->
 		game.fix_tooltip()
 		
